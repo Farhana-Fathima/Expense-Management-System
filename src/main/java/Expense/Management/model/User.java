@@ -57,6 +57,9 @@ public class User implements UserDetails {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private boolean isEmailVerified = false;  // New field for email verification status
+    private String verificationToken;  // New field for email verification token
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
