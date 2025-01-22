@@ -27,9 +27,9 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/verify-email").permitAll()  // Allow access to this path
-                .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                 .requestMatchers("/api/superadmin/**").hasRole("SUPER_ADMIN")
+                .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                .requestMatchers("/api/expenses/**").hasAnyRole("USER","SUPER_ADMIN")
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
@@ -41,3 +41,5 @@ public class SecurityConfig {
         return http.build();
     }
 }
+
+

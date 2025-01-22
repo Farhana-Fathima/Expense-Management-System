@@ -1,5 +1,6 @@
 package Expense.Management.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -27,11 +28,14 @@ public class EmailService {
         sendEmail(to, subject, body);
     }
 
+    @Value("${SERVER_PORT}")
+    private String serverPort;
+
     public void sendEmailVerification(String to, String verificationToken) {
         String subject = "Email Verification - Expense Management System";
         String body = "<h1>Email Verification</h1>"
                 + "<p>Thank you for registering. Please verify your email by clicking the link below:</p>"
-                + "<p><a href=\"http://localhost:8005/api/auth/verify-email?token=" + verificationToken + "\">Verify Email</a></p>"
+                + "<p><a href=\"http://localhost:"+ serverPort +"/api/auth/verify-email?token=" + verificationToken + "\">Verify Email</a></p>"
                 + "<br>"
                 + "<p>Regards,<br>Expense Management Team</p>";
 
