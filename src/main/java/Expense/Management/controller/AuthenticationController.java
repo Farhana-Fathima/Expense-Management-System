@@ -1,6 +1,5 @@
 package Expense.Management.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,12 +19,12 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
-    @Autowired
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<LoginResponse> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authenticationService.register(request));
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest request) {
+        String message = authenticationService.register(request);
+        return ResponseEntity.ok(message);
     }
 
     @GetMapping("/verify-email")
@@ -39,3 +38,4 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.login(request));
     }
 }
+
