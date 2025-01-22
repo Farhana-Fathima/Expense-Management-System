@@ -27,7 +27,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService; 
 
-    public LoginResponse register(RegisterRequest request) {
+    public String register(RegisterRequest request) {
         // Check if username or email already exists
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new ValidationException("Username already exists");
@@ -52,14 +52,8 @@ public class AuthenticationService {
         // Send a verification email with the verification link
         emailService.sendEmailVerification(savedUser.getEmail(), savedUser.getVerificationToken());
 
-        // Generate JWT token
-        String jwt = jwtService.generateToken((UserDetails) savedUser);
-        
-        return LoginResponse.builder()
-                .token(jwt)
-                .username(savedUser.getUsername())
-                .role(savedUser.getRole())
-                .build();
+        // Return a user-friendly message
+        return "Registration successful! Please verify your email by clicking on the verification link sent to " + savedUser.getEmail();
     }
 
     public void verifyEmail(String token) {
@@ -71,27 +65,28 @@ public class AuthenticationService {
         userRepository.save(user);
     }
     
-
     public LoginResponse login(LoginRequest request) {
-    authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                    request.getUsername(),
-                    request.getPassword()
-            )
-    );
-    
-    User user = userRepository.findByUsername(request.getUsername())
-            .orElseThrow(() -> new ValidationException("User not found"));
-            
-    String jwt = jwtService.generateToken((UserDetails) user);
-    
-    return LoginResponse.builder()
-            .token(jwt)
-            .username(user.getUsername())
-            .role(user.getRole())
-            .build();
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()
+                )
+        );
+        
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new ValidationException("User not found"));
+
+        // Check if the user's email is verified for regular users
+        if (user.getRole() == Role.USER && !user.isEmailVerified()) {
+            throw new ValidationException("Email not verified. Please verify your email before logging in.");
+        }
+        
+        String jwt = jwtService.generateToken((UserDetails) user);
+        
+        return LoginResponse.builder()
+                .token(jwt)
+                .username(user.getUsername())
+                .role(user.getRole())
+                .build();
+    }
 }
-
-}
-
-
