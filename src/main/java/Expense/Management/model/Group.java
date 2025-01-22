@@ -1,5 +1,6 @@
 package Expense.Management.model;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,11 +11,17 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @Table(name = "groups")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Group {
 
     @Id
@@ -22,6 +29,8 @@ public class Group {
     private Long id;
 
     private String name;
+
+    private String description;
 
     @ManyToOne
     private User admin;
@@ -33,4 +42,8 @@ public class Group {
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> participants;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    
 }
