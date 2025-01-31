@@ -1,5 +1,6 @@
 package Expense.Management.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,4 +15,9 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     // Find expense by user and expense ID
     Optional<Expense> findByUserAndId(User user, Long id);
+
+
+    List<Expense> findByUserIdAndCreatedAtAfter(Long userId, LocalDateTime createdAt);
+    
+
 }

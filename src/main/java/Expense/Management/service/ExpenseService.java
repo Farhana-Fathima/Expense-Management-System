@@ -3,6 +3,7 @@ package Expense.Management.service;
 import Expense.Management.DTO.ExpenseRequest;
 import Expense.Management.DTO.ExpenseResponse;
 import Expense.Management.model.Expense;
+import Expense.Management.model.ExpenseCategory;
 import Expense.Management.model.User;
 import Expense.Management.repository.ExpenseRepository;
 import Expense.Management.repository.UserRepository;
@@ -28,22 +29,31 @@ public class ExpenseService {
     public ExpenseResponse addExpense(String username, ExpenseRequest expenseRequest) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
+    
+        // Convert category string to enum
+        ExpenseCategory category;
+        try {
+            category = ExpenseCategory.valueOf(expenseRequest.getCategory().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid category. Allowed categories: " + ExpenseCategory.getAllowedCategories());
+        }
+    
         Expense expense = Expense.builder()
                 .user(user)
                 .amount(expenseRequest.getAmount())
                 .description(expenseRequest.getDescription())
                 .expenseDate(expenseRequest.getExpenseDate())
-                .category(expenseRequest.getCategory())
+                .category(category) // Pass the converted enum
                 .receipt(expenseRequest.getReceipt())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-
+    
         Expense savedExpense = expenseRepository.save(expense);
-
+    
         return mapToExpenseResponse(savedExpense);
     }
+    
 
     // Get all expenses for a user
     @Transactional(readOnly = true)
@@ -59,23 +69,34 @@ public class ExpenseService {
 
     // Update an existing expense
     @Transactional
-    public ExpenseResponse updateExpense(String username, Long expenseId, ExpenseRequest expenseRequest) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+public ExpenseResponse updateExpense(String username, Long expenseId, ExpenseRequest expenseRequest) {
+    User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Expense expense = expenseRepository.findByUserAndId(user, expenseId)
-                .orElseThrow(() -> new RuntimeException("Expense not found"));
+    Expense expense = expenseRepository.findByUserAndId(user, expenseId)
+            .orElseThrow(() -> new RuntimeException("Expense not found"));
 
-        expense.setAmount(expenseRequest.getAmount());
-        expense.setDescription(expenseRequest.getDescription());
-        expense.setExpenseDate(expenseRequest.getExpenseDate());
-        expense.setCategory(expenseRequest.getCategory());
-        expense.setReceipt(expenseRequest.getReceipt());
-        expense.setUpdatedAt(LocalDateTime.now());
-
-        Expense updatedExpense = expenseRepository.save(expense);
-        return mapToExpenseResponse(updatedExpense);
+    // Convert category string to enum
+    ExpenseCategory category;
+    try {
+        category = ExpenseCategory.valueOf(expenseRequest.getCategory().toUpperCase());
+    } catch (IllegalArgumentException e) {
+        throw new RuntimeException("Invalid category. Allowed categories: " + ExpenseCategory.getAllowedCategories());
     }
+
+    // Update expense details
+    expense.setAmount(expenseRequest.getAmount());
+    expense.setDescription(expenseRequest.getDescription());
+    expense.setExpenseDate(expenseRequest.getExpenseDate());
+    expense.setCategory(category); // Pass the converted enum
+    expense.setReceipt(expenseRequest.getReceipt());
+    expense.setUpdatedAt(LocalDateTime.now());
+
+    Expense updatedExpense = expenseRepository.save(expense);
+
+    return mapToExpenseResponse(updatedExpense);
+}
+
 
     // Delete an expense
     @Transactional
@@ -89,13 +110,13 @@ public class ExpenseService {
         expenseRepository.delete(expense);
     }
 
-    // Helper method to map Expense to ExpenseResponse
-    private ExpenseResponse mapToExpenseResponse(Expense expense) {
+   // Helper method to map Expense to ExpenseResponse
+   private ExpenseResponse mapToExpenseResponse(Expense expense) {
         return ExpenseResponse.builder()
                 .id(expense.getId())
                 .amount(expense.getAmount())
                 .description(expense.getDescription())
-                .category(expense.getCategory())
+                .category(expense.getCategory().name()) // Use the name of the enum
                 .expenseDate(expense.getExpenseDate())
                 .receipt(expense.getReceipt())
                 .createdAt(expense.getCreatedAt())

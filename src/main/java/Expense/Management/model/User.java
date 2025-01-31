@@ -9,6 +9,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -34,6 +36,9 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @OneToMany(mappedBy = "uploadedBy")
+    private List<Receipt> receipts;
     
     @Column(unique = true, nullable = false)
     private String username;
@@ -60,6 +65,7 @@ public class User implements UserDetails {
     private boolean isEmailVerified = false;  // New field for email verification status
     private String verificationToken;  // New field for email verification token
 
+    private boolean active = true; // Default to active
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

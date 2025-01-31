@@ -2,11 +2,17 @@ package Expense.Management.controller;
 
 import Expense.Management.DTO.GroupRequest;
 import Expense.Management.DTO.GroupResponse;
+import Expense.Management.DTO.ReceiptDTO;
+import Expense.Management.model.Receipt;
 import Expense.Management.service.GroupService;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/groups")
@@ -71,5 +77,24 @@ public class GroupController {
         groupService.leaveGroup(groupId, username);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/{groupId}/upload-receipt")
+    public ResponseEntity<String> uploadReceipt(
+            @PathVariable Long groupId,
+            @RequestParam("file") MultipartFile file,
+            Authentication authentication) {
+        String username = authentication.getName();
+        String response = groupService.uploadReceipt(groupId, file, username);
+        return ResponseEntity.ok(response);
+    }
+
+   @GetMapping("/{groupId}/receipts")
+public ResponseEntity<List<ReceiptDTO>> getReceipts(
+        @PathVariable Long groupId,
+        Authentication authentication) {
+    String username = authentication.getName();
+    List<ReceiptDTO> receipts = groupService.getReceipts(groupId, username);
+    return ResponseEntity.ok(receipts);
+}
 }
 

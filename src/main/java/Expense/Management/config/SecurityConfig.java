@@ -29,7 +29,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/superadmin/**").hasRole("SUPER_ADMIN")
                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
-                .requestMatchers("/api/expenses/**").hasAnyRole("USER","SUPER_ADMIN")
+                .requestMatchers("/api/expenses/**").hasAnyRole("USER", "ADMIN", "SUPER_ADMIN")
+                .requestMatchers("/api/expense-splits/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/api/groups/**").hasAnyRole("USER", "ADMIN") 
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
